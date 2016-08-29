@@ -5,8 +5,8 @@ $(function () {
   var il = $('#container').data('ideal');
   var ct = $('#container').data('remain-times');
   var at = $('#container').data('additional-times');
+  var tet = $('#container').data('total-estimated-times');
 
-  console.log(sp);
   $('#container').highcharts({
     title: {
       text: title,
@@ -49,6 +49,13 @@ $(function () {
         enabled: true
       },
       data: eval(ct)
+    }, {
+      name: '総時間',
+      lineWidth: 3,
+      dataLabels: {
+        enabled: true
+      },
+      data: eval(tet)
     }]
   });
 });

@@ -4,7 +4,7 @@
 <script type="text/javascript" src="/js/graph.js"></script>
 <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
-<div id="container" data-title='<%= @sprint_title %>' data-sprint-period='<%= @sprint_period %>' data-ideal='<%= @graph_data_ideal %>' data-remain-times='<%= @graph_data_remain_times %>' data-additional-times='<%= @graph_data_additional_times %>' style="max-width: 1000px; min-width: 310px; height: 600px; margin: 0 auto">
+<div id="container" data-title='<%= @sprint_title %>' data-sprint-period='<%= @sprint_period %>' data-ideal='<%= @graph_data_ideal %>' data-remain-times='<%= @graph_data_remain_times %>' data-additional-times='<%= @graph_data_additional_times %>' data-total-estimated-times='<%= @graph_data_total_estimated_times %>' style="max-width: 1000px; min-width: 310px; height: 600px; margin: 0 auto">
 
 </div>
 
@@ -15,6 +15,7 @@
 		<th>理想</th>
 		<th>残時間</th>
 		<th>追加</th>
+		<th>総時間</th>
 	</tr>
 	<% 0.upto(@sprint_period.length - 1) do |day_num| %>
 	<tr>
@@ -23,6 +24,7 @@
 		<td><%= @graph_data_ideal[day_num] %></td>
 		<td><%= @graph_data_remain_times[day_num] %></td>
 		<td><%= @graph_data_additional_times[day_num] %></td>
+		<td><%= @graph_data_total_estimated_times[day_num] %></td>
 	</tr>
 <% end %>
 </table>

@@ -41,6 +41,19 @@ module GraphDataCreator
 		    result
 		end
 
+		def total_estimated_time_data(num_of_sprint_days, sprint_period, total_estimated_time,
+			week_day_additional_times)
+			result = Array.new
+
+		    0.upto(num_of_sprint_days - 1) { |i|
+				next result[i] = total_estimated_time if i == 0
+				estimated_time = result[i - 1]
+				result[i] = result[i - 1] + week_day_additional_times[sprint_period[i]]
+		    }
+
+		    result
+		end
+
 		def over_today?(date_str)
 			DateTime.parse(date_str) > DateTime.parse(DateTime.now.strftime("%Y-%m-%d"))
 		end

@@ -21,7 +21,8 @@ def init(ph,sp)
     @graph_data_ideal = Array.new
     @graph_data_remain_times = Array.new
     @graph_data_additional_times = Array.new
-    
+    @graph_data_total_estimated_times = Array.new
+
     phase = get_phase(ph)
     sprint = get_sprit(sp)
     @sprint_title = phase + " " + sprint
@@ -127,6 +128,9 @@ def create_graph_data()
                                     @total_estimated_times,@week_day_consumed_times,@week_day_additional_times)
     # 追加タスク用データ作成
     @graph_data_additional_times = GraphDataCreator.additional_times_data(num_of_sprint_days,@sprint_period,@week_day_additional_times)
+
+    # 総時間用データ作成
+    @graph_data_total_estimated_times = GraphDataCreator.total_estimated_time_data(num_of_sprint_days,@sprint_period,@total_estimated_times,@week_day_additional_times)
 end
 
 # Util
