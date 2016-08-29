@@ -24,11 +24,11 @@ def init(ph,sp)
     @graph_data_additional_times = Array.new
     @graph_data_total_estimated_times = Array.new
 
-    phase = get_phase(ph)
-    sprint = get_sprit(sp)
-    @sprint_title = phase + " " + sprint
+    phase = ph.delete("ph")
+    sprint = sp.delete("sp")
 
-    @sprint_period = get_sprint_date(phase,sprint)
+    @sprint_title = "Phase" + phase + "_SP" + sprint
+    @sprint_period = $sprint_date["Phase " + phase]["Sprint " + sprint]
     
     @total_estimated_times = 0.0
     @week_day_consumed_times = Hash.new(0)
@@ -39,7 +39,8 @@ def create_origin_data(os)
     # TODO エラーハンドリング
     return set_dummy_data() if @sprint_period == nil
 
-    lists = get_target_lists(os)
+    is_current_sprint = current_sprint?(@sprint_period[0], @sprint_period[@sprint_period.size - 1])
+    lists = get_target_lists(os, is_current_sprint)
 
     # TODO エラーハンドリング
     return set_dummy_data() if lists == nil
@@ -47,41 +48,42 @@ def create_origin_data(os)
     lists.each { |list|
     	list_id = list["id"]
     	list_name = list["name"]
-    	cards = @trello.get_cards(list_id)
 
+        next if !is_current_sprint && list_name != @sprint_title
+
+        cards = @trello.get_cards(list_id)
     	cards.each { |card|
-    		estimated_time = get_estimated_time(card)
-    		# 見積もり時間が設定されてないものはスキップ
-    		next if estimated_time == 0
 
-			# 追加タスク or 初期タスク
-			if CardAnalyzer.additional_task?(card)
-				# 追加された日付を取得
-				additional_date_str = CardAnalyzer.get_additional_date(card)
-				@week_day_additional_times[additional_date_str] += estimated_time
-			else
-				@total_estimated_times += estimated_time
-			end
+            estimated_time = get_estimated_time(card)
+            # 見積もり時間が設定されてないものはスキップ
+            next if estimated_time == 0
 
-			if list_name == "DONE"
-				# DONE に移動された最新の日付を取得
-				moved_to_done_date_str = CardAnalyzer.get_latest_done_date(card)
+            # 追加タスク or 初期タスク
+            if CardAnalyzer.additional_task?(card)
+                # 追加された日付を取得
+                additional_date_str = CardAnalyzer.get_additional_date(card)
+                @week_day_additional_times[additional_date_str] += estimated_time
+            else
+                @total_estimated_times += estimated_time
+            end
 
-				current_week_day_consumed_time = @week_day_consumed_times[moved_to_done_date_str]
-				@week_day_consumed_times[moved_to_done_date_str] = current_week_day_consumed_time + estimated_time
-			end
-			}
+            # 対象スプリントでない場合 かつ リスト名が一致する場合
+            if !is_current_sprint && list_name == @sprint_title || list_name == "DONE"
+                # DONE に移動された最新の日付を取得
+                moved_to_done_date_str = CardAnalyzer.get_latest_done_date(card)
+                @week_day_consumed_times[moved_to_done_date_str] += estimated_time
+            end
 		}
+	}
 end
 
-def get_target_lists(os)
+def get_target_lists(os, is_current_sprint)
 
     # 表示対象が現在のスプリントか
-    return @trello.get_all_lists(os) if current_sprint?(@sprint_period[0], @sprint_period[@sprint_period.size - 1])
+    return @trello.get_all_lists(os) if is_current_sprint
 
     closed_lists = @trello.get_all_closed_lists(os)
-    target_list_name = get_target_list_name()
-    return closed_lists.select { |list| list["name"] == target_list_name }[0]
+    return closed_lists.select { |list| list["name"] == @sprint_title }
 end
 
 def create_graph_data()
@@ -109,20 +111,9 @@ def get_estimated_time(card)
 
     return 0.0
 end
-def get_phase(ph)
-    return "Phase " + ph.delete("ph")
-end
-def get_sprit(sp)
-    return "Sprint " + sp.delete("sp")
-end
-def get_sprint_date(ph,sp)
-    return $sprint_date[ph][sp]
-end
+
 def current_sprint?(sprint_start_date_str, sprint_end_date_str)
     return DateTime.parse(sprint_start_date_str) <= DateTime.parse(DateTime.now.strftime("%Y-%m-%d")) && DateTime.parse(DateTime.now.strftime("%Y-%m-%d")) <= DateTime.parse(sprint_end_date_str)
-end
-def get_target_list_name()
-    return "Phase2_SP" + @sprint_title.delete("Sprint ")
 end
 def set_dummy_data()
     @graph_data_ideal=[73.0,64.88888888888889,56.77777777777778,48.66666666666667,40.55555555555556,32.44444444444444,24.333333333333336,16.22222222222223,8.111111111111114,0]
