@@ -5,6 +5,7 @@ require 'date'
 require 'yaml'
 require './trello_api'
 require './graph_data_creator'
+require './card_analyzer'
 
 $sprint_date = YAML.load_file(File.dirname(__FILE__) + "/data/sprint_date.yml")
 
@@ -54,19 +55,17 @@ def create_origin_data(os)
     		next if estimated_time == 0
 
 			# 追加タスク or 初期タスク
-			if additional_task?(card)
+			if CardAnalyzer.additional_task?(card)
 				# 追加された日付を取得
-				additional_date_str = get_additional_date(card)
-
-				current_additional_time = @week_day_additional_times[additional_date_str]
-				@week_day_additional_times[additional_date_str] = current_additional_time + estimated_time
+				additional_date_str = CardAnalyzer.get_additional_date(card)
+				@week_day_additional_times[additional_date_str] += estimated_time
 			else
 				@total_estimated_times += estimated_time
 			end
 
 			if list_name == "DONE"
 				# DONE に移動された最新の日付を取得
-				moved_to_done_date_str = get_latest_done_date(card)
+				moved_to_done_date_str = CardAnalyzer.get_latest_done_date(card)
 
 				current_week_day_consumed_time = @week_day_consumed_times[moved_to_done_date_str]
 				@week_day_consumed_times[moved_to_done_date_str] = current_week_day_consumed_time + estimated_time
@@ -83,40 +82,6 @@ def get_target_lists(os)
     closed_lists = @trello.get_all_closed_lists(os)
     target_list_name = get_target_list_name()
     return closed_lists.select { |list| list["name"] == target_list_name }[0]
-end
-
-def additional_task?(card)
-	labels = card["labels"]
-	return false if labels == nil
-
-	add_label = labels.select { |label| label["name"] == "追加タスク" }[0]
-	return add_label != nil
-end
-
-def get_additional_date(card)
-	actions = card["actions"]
-	created_action = actions.select { |action| action["type"] == "createCard" }[0]
-
-	additional_date = DateTime.parse(created_action["date"]) + (9.0/24.0)
-	return additional_date.strftime("%Y-%m-%d")
-end
-
-def get_latest_done_date(card)
-	latest_action = nil
-	card["actions"].each { |action|
-		if action["type"] == "updateCard" && action["data"]["listAfter"] != nil && action["data"]["listAfter"]["name"] == "DONE" || 
-            action["type"] == "createCard" && action["data"]["list"] != nil && action["data"]["list"]["name"] == "DONE"
-
-			next latest_action = action if latest_action == nil
-
-			latest_action_time = DateTime.parse(latest_action["date"]) + (9.0/24.0)
-			action_time = DateTime.parse(action["date"]) + (9.0/24.0)
-
-			latest_action = action if action_time > latest_action_time
-		end
-	}
-	moved_to_done_date = DateTime.parse(latest_action["date"]) + (9.0/24.0)
-	return moved_to_done_date.strftime("%Y-%m-%d")
 end
 
 def create_graph_data()

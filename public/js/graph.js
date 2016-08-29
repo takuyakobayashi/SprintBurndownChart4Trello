@@ -1,5 +1,5 @@
 $(function () {
-  console.log('func enter');
+
   var title = $('#container').data('title');
   var sp = $('#container').data('sprint-period');
   var il = $('#container').data('ideal');
