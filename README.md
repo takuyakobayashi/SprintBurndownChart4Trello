@@ -42,7 +42,7 @@ BoardId:
 	* チャートを表示するために使用するボードのid。`curl` とかで、Trello API を使用して見つける。
 
 ### Target date range
-* チャートにする対象の日付は`data/sprint_date.yml`に指定する。
+* チャートにする対象のフェイズ・スプリント・日付は`data/sprint_date.yml`に指定する。
 
 ```
 Phase A :
@@ -65,10 +65,10 @@ Phase A :
 
 * リスト
 	* DONE
-		* タスクが完了したカードを置くためのリスト
+		* 完了したカードを置くためのリスト
 	* Phase**XX**_SP**YY**
-		* スプリントが終了した場合にDONE内のカードのアーカイブ用リスト
-		* `data/sprint_date.yml`内のPhaseとSprintの値と同じ必要がある
+		* スプリントが終了した時にDONE内のカードをアーカイブするためのリスト。このリストを作成してリストごとアーカイブする。
+		* **XX**、**YY**は`data/sprint_date.yml`内のPhaseとSprintの値と一致する必要がある
 * カード 
 	* 見積もり時間
 		* `(XX) カード名`
