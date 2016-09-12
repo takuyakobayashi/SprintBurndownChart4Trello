@@ -21,14 +21,17 @@
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">All Sprint <b class="caret"></b></a>
 					<ul class="dropdown-menu">
 						<li><a href="#">Add Sprint</a></li>
-						<li class="divider"></li>
+
 						<% @all_sprints_list.keys.each do |phase| %>
-							<p style="padding-left : 10px;"><%= phase %></p>
 							<li class="divider"></li>
+							<p style="padding-left : 10px;"><%= phase %></p>
+
 							<% @all_sprints_list[phase].each do |sprint| %>
 								<li><a href="javascript:void(0);" onclick="OnClickSprint('<%= phase %>','<%= sprint %>');"><%= sprint %></a></li>
 							<% end %>
+
 						<% end %>
+
 					</ul>
 				</li>
 			</ul>
