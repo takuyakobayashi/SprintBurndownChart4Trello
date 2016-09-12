@@ -1,6 +1,5 @@
 $(function () {
 
-  var title = $('#container').data('title');
   var sp = $('#container').data('sprint-period');
   var il = $('#container').data('ideal');
   var ct = $('#container').data('remain-times');
@@ -9,12 +8,11 @@ $(function () {
 
   $('#container').highcharts({
     title: {
-      text: title,
-      x: -20 //center
+      text: null
     },
     xAxis: {
       categories: sp
-      },
+    },
     yAxis: {
       title: {
         text: "時間",

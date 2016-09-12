@@ -1,14 +1,45 @@
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<!-- jQuery & jQuery ui -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+<!-- boot strap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+<!-- highcharts -->
 <script type="text/javascript" src="/js/highcharts.js"></script>
-<script type="text/javascript" src="/js/highcharts-3d.js"></script>
 <script type="text/javascript" src="/js/graph.js"></script>
-<link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
-<div id="container" data-title='<%= @sprint_title %>' data-sprint-period='<%= @sprint_period %>' data-ideal='<%= @graph_data_ideal %>' data-remain-times='<%= @graph_data_remain_times %>' data-additional-times='<%= @graph_data_additional_times %>' data-total-estimated-times='<%= @graph_data_total_estimated_times %>' style="max-width: 1000px; min-width: 310px; height: 600px; margin: 0 auto">
+<nav class="navbar navbar-default">
+	<div class="container-fluid">
+		<div class="navbar-header">
+			<p class="navbar-brand" href="#"><%= "Phase" + @phase + " Sprint" + @sprint %></p>
+		</div>
 
+		<div class="collapse navbar-collapse" id="navbarEexample">
+			<ul class="nav navbar-nav navbar-right">
+				<!-- ドロップダウンのメニューも配置可能 -->
+				<li class="dropdown">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown">All Sprint <b class="caret"></b></a>
+					<ul class="dropdown-menu">
+						<li><a href="#">Add Sprint</a></li>
+						<li class="divider"></li>
+						<% @all_sprints_list.keys.each do |phase| %>
+							<p style="padding-left : 10px;"><%= phase %></p>
+							<li class="divider"></li>
+							<% @all_sprints_list[phase].each do |sprint| %>
+								<li><a href="javascript:void(0);" onclick="OnClickSprint('<%= phase %>','<%= sprint %>');"><%= sprint %></a></li>
+							<% end %>
+						<% end %>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<div id="container" data-sprint-period='<%= @sprint_period %>' data-ideal='<%= @graph_data_ideal %>' data-remain-times='<%= @graph_data_remain_times %>' data-additional-times='<%= @graph_data_additional_times %>' data-total-estimated-times='<%= @graph_data_total_estimated_times %>' style="max-width: 1000px; min-width: 310px; height: 600px; margin: 0 auto">
 </div>
-
-<table border="1" style="max-width: 1000px; min-width: 310px; margin: 0 auto">
+<!-- Display each value in the table -->
+<!-- <table border="1" style="max-width: 1000px; min-width: 310px; margin: 0 auto">
 	<tr>
 		<th>営業日</th>
 		<th>date</th>
@@ -27,4 +58,10 @@
 		<td><%= @graph_data_total_estimated_times[day_num] %></td>
 	</tr>
 <% end %>
-</table>
+</table> -->
+<script>
+	function OnClickSprint(phase,sprint) {
+		var replacedPhase = window.location.pathname.replace("ph"+<%= @phase %>,"ph"+phase.substr(6,phase.length));
+		location.href = replacedPhase.replace("sp"+<%= @sprint %>,"sp"+sprint.substr(7,sprint.length));;
+	}
+</script>

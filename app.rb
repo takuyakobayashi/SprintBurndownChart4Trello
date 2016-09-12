@@ -24,15 +24,18 @@ def init(ph,sp)
     @graph_data_additional_times = Array.new
     @graph_data_total_estimated_times = Array.new
 
-    phase = ph.delete("ph")
-    sprint = sp.delete("sp")
+    @phase = ph.delete("ph")
+    @sprint = sp.delete("sp")
 
-    @sprint_title = "Phase" + phase + "_SP" + sprint
-    @sprint_period = $sprint_date["Phase " + phase]["Sprint " + sprint]
-    
+    # graph data
+    @sprint_period = $sprint_date["Phase " + @phase]["Sprint " + @sprint]
+    @closed_list_title = "Phase" + @phase + "_SP" + @sprint
     @total_estimated_times = 0.0
     @week_day_consumed_times = Hash.new(0)
     @week_day_additional_times = Hash.new(0)
+
+    # view data
+    @all_sprints_list = get_all_sprint_list()
 end
 
 def create_origin_data(os)
@@ -49,7 +52,7 @@ def create_origin_data(os)
     	list_id = list["id"]
     	list_name = list["name"]
 
-        next if !is_current_sprint && list_name != @sprint_title
+        next if !is_current_sprint && list_name != @closed_list_title
 
         cards = @trello.get_cards(list_id)
     	cards.each { |card|
@@ -68,7 +71,7 @@ def create_origin_data(os)
             end
 
             # 対象スプリントでない場合 かつ リスト名が一致する場合
-            if !is_current_sprint && list_name == @sprint_title || list_name == "DONE"
+            if !is_current_sprint && list_name == @closed_list_title || list_name == "DONE"
                 # DONE に移動された最新の日付を取得
                 moved_to_done_date_str = CardAnalyzer.get_latest_done_date(card)
                 @week_day_consumed_times[moved_to_done_date_str] += estimated_time
@@ -83,7 +86,7 @@ def get_target_lists(os, is_current_sprint)
     return @trello.get_all_lists(os) if is_current_sprint
 
     closed_lists = @trello.get_all_closed_lists(os)
-    return closed_lists.select { |list| list["name"] == @sprint_title }
+    return closed_lists.select { |list| list["name"] == @closed_list_title }
 end
 
 def create_graph_data()
@@ -119,6 +122,19 @@ def set_dummy_data()
     @graph_data_ideal=[73.0,64.88888888888889,56.77777777777778,48.66666666666667,40.55555555555556,32.44444444444444,24.333333333333336,16.22222222222223,8.111111111111114,0]
     @graph_data_remain_times=[73.0,63.0,52.5,43.5,40.5,37.5,37.5,23.0,11,0]
     @graph_data_additional_times=[0,2,3,4,5,6,5,4,3,2]
-    @sprint_title="Phase Dummy Sprint Dummy"
+    @closed_list_title="Phase Dummy Sprint Dummy"
     @sprint_period=["2016-08-03","2016-08-04","2016-08-05","2016-08-08","2016-08-09","2016-08-10","2016-08-11","2016-08-12","2016-08-15","2016-08-16"]
+end
+
+# for View data
+def get_all_sprints_list()
+    result = Hash.new(0)
+    $sprint_date.keys.each { |phase|
+        sprints = Array.new
+        $sprint_date[phase].each { |sprint|
+            sprints.push(sprint[0])
+        }
+        result[phase] = sprints
+    }
+    result
 end
