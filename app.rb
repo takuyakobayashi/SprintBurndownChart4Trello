@@ -35,7 +35,7 @@ def init(ph,sp)
     @week_day_additional_times = Hash.new(0)
 
     # view data
-    @all_sprints_list = get_all_sprint_list()
+    @all_sprints_list = get_all_sprints_list()
 end
 
 def create_origin_data(os)
