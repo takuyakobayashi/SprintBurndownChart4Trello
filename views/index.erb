@@ -11,7 +11,8 @@
 <nav class="navbar navbar-default">
 	<div class="container-fluid">
 		<div class="navbar-header">
-			<p class="navbar-brand" href="#"><%= "Phase" + @phase + " Sprint" + @sprint %></p>
+			<% title = @phase == nil || @sprint == nil ? "Sprint Burndown Chart" : "Phase" + @phase + " Sprint" + @sprint %>
+			<p class="navbar-brand" href="#"><%= title %></p>
 		</div>
 
 		<div class="collapse navbar-collapse" id="navbarEexample">
@@ -21,17 +22,17 @@
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">All Sprint <b class="caret"></b></a>
 					<ul class="dropdown-menu">
 						<li><a href="#">Add Sprint</a></li>
+						<% if @all_sprints_list != nil %>
+							<% @all_sprints_list.keys.each do |phase| %>
+								<li class="divider"></li>
+								<p style="padding-left : 10px;"><%= phase %></p>
 
-						<% @all_sprints_list.keys.each do |phase| %>
-							<li class="divider"></li>
-							<p style="padding-left : 10px;"><%= phase %></p>
+								<% @all_sprints_list[phase].each do |sprint| %>
+									<li><a href="javascript:void(0);" onclick="OnClickSprint('<%= phase %>','<%= sprint %>');"><%= sprint %></a></li>
+								<% end %>
 
-							<% @all_sprints_list[phase].each do |sprint| %>
-								<li><a href="javascript:void(0);" onclick="OnClickSprint('<%= phase %>','<%= sprint %>');"><%= sprint %></a></li>
 							<% end %>
-
 						<% end %>
-
 					</ul>
 				</li>
 			</ul>
@@ -39,29 +40,49 @@
 	</div>
 </nav>
 
-<div id="container" data-sprint-period='<%= @sprint_period %>' data-ideal='<%= @graph_data_ideal %>' data-remain-times='<%= @graph_data_remain_times %>' data-additional-times='<%= @graph_data_additional_times %>' data-total-estimated-times='<%= @graph_data_total_estimated_times %>' style="max-width: 1000px; min-width: 310px; height: 600px; margin: 0 auto">
+<% if @sprint_period != nil %>
+
+	<div id="container" data-sprint-period='<%= @sprint_period %>' data-ideal='<%= @graph_data_ideal %>' data-remain-times='<%= @graph_data_remain_times %>' data-additional-times='<%= @graph_data_additional_times %>' data-total-estimated-times='<%= @graph_data_total_estimated_times %>' style="max-width: 1000px; min-width: 310px; height: 600px; margin: 0 auto">
+	</div>
+	<!-- Display each value in the table -->
+<!-- 	<table border="1" style="max-width: 1000px; min-width: 310px; margin: 0 auto">
+		<tr>
+			<th>営業日</th>
+			<th>date</th>
+			<th>理想</th>
+			<th>残時間</th>
+			<th>追加</th>
+			<th>総時間</th>
+		</tr>
+		<% 0.upto(@sprint_period.length - 1) do |day_num| %>
+			<tr>
+				<td><%= day_num+1 %></td>
+				<td><%= @sprint_period[day_num] %></td>
+				<td><%= @graph_data_ideal[day_num] %></td>
+				<td><%= @graph_data_remain_times[day_num] %></td>
+				<td><%= @graph_data_additional_times[day_num] %></td>
+				<td><%= @graph_data_total_estimated_times[day_num] %></td>
+			</tr>
+		<% end %>
+	</table>-->
+
+<% else %>
+
+<div style="padding-left : 10px;">
+	If you use for the first<br>
+	please add periods of sprint from the navigation menu.<br>
+	And you can show sprint burndown chart.<br>
+	<br>
+	ex)		http://&lt;domain&gt;/sbc/ios/ph2/sp3
+	<ul>
+		<li>Part of ios is specify the OS. (ios or android)</li>
+		<li>Part of ph2 is specify the phase.</li>
+		<li>Part of sp3 is specify the sprint.</li>
+	</ul>
 </div>
-<!-- Display each value in the table -->
-<!-- <table border="1" style="max-width: 1000px; min-width: 310px; margin: 0 auto">
-	<tr>
-		<th>営業日</th>
-		<th>date</th>
-		<th>理想</th>
-		<th>残時間</th>
-		<th>追加</th>
-		<th>総時間</th>
-	</tr>
-	<% 0.upto(@sprint_period.length - 1) do |day_num| %>
-	<tr>
-		<td><%= day_num+1 %></td>
-		<td><%= @sprint_period[day_num] %></td>
-		<td><%= @graph_data_ideal[day_num] %></td>
-		<td><%= @graph_data_remain_times[day_num] %></td>
-		<td><%= @graph_data_additional_times[day_num] %></td>
-		<td><%= @graph_data_total_estimated_times[day_num] %></td>
-	</tr>
+
 <% end %>
-</table> -->
+
 <script>
 	function OnClickSprint(phase,sprint) {
 		var replacedPhase = window.location.pathname.replace("ph"+<%= @phase %>,"ph"+phase.substr(6,phase.length));

@@ -9,6 +9,8 @@ require './card_analyzer'
 
 $sprint_date = YAML.load_file(File.dirname(__FILE__) + "/data/sprint_date.yml")
 
+get '/' do erb :index end
+
 get '/sbc/:os/:ph/:sp' do |os,ph,sp|
     init(ph,sp)
     create_origin_data(os)
