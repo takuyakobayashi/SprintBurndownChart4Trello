@@ -1,0 +1,87 @@
+<!-- jQuery & jQuery ui -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+<!-- boot strap -->
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" />
+<!-- date picker -->
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1/i18n/jquery.ui.datepicker-ja.min.js"></script>
+<script src="/js/mdp/jquery-ui.multidatespicker.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/pepper-ginder-custom.css " >
+
+<div class="container" style="padding-top:20px;padding-bottom:20px;">
+	<div class="row">
+		<div class="col-md-5 col-xs-offset-4">
+			<form class="form-inline" role="form">
+				<div class="form-group">
+					<label class="sr-only" for="inputPhase">Phase number</label>
+					<input type="text" class="form-control" id="inputPhase" placeholder="Enter phase number">
+				</div>
+				<div class="form-group">
+					<label class="sr-only" for="inputSprint">Sprint number</label>
+					<input type="text" class="form-control" id="inputSprint" placeholder="Enter sprint number">
+				</div>
+				<button class="btn btn-default" href="javascript:void(0);" onclick="return onClickSetting();">設定</button>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div align="center">
+	<div id="dp"></div>
+</div>
+
+<script>
+	var isShift = false;
+	var preSelectedDay = null;
+	$(function() {
+		$("#dp").multiDatesPicker({
+			numberOfMonths: [2,4]
+		});
+	});
+
+	$(function() {
+		$(document).on('keydown', function(e) {
+			if(e.shiftKey)
+				$('#dp').multiDatesPicker('toggleAutoSelectMode',true,[0,5])
+		});
+		$(document).on('keyup', function(e) {
+			if(e.keyCode == 16)
+				$('#dp').multiDatesPicker('toggleAutoSelectMode',false)
+		});
+	});
+
+	function onClickSetting() {
+		var phase = $("#inputPhase").val();
+		var sprint = $("#inputSprint").val();
+		if(!phase.trim() || !sprint.trim() || !isFinite(phase) || !isFinite(sprint)){
+			alert("Please enter a numeric value.");
+			return false;
+		}
+		var dates = $('#dp').multiDatesPicker('getDates');
+		if(dates.length == 0){
+			alert("Please select sprint peiod.");
+			return false;
+		}
+		var datesStr = "";
+		for(var i=0;i<dates.length;i++){
+			datesStr += dates[i] + ",";
+		}
+		$.ajax({
+			type: "POST",
+			url: window.location.pathname,
+			data: {
+				phase: phase,
+				sprint: sprint,
+				dates: datesStr
+			}
+		}).done(function(data, textStatus, jqXHR ) {
+			if(jqXHR.status == 200)
+				alert("Success.");
+			else if(jqXHR.status == 204)
+				alert("Set sprint is aleady exist");
+		});
+
+		return false;
+	}
+</script>
