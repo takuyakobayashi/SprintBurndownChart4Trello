@@ -1,0 +1,3 @@
+[submodule "public/js/mdp"]
+	path = public/js/mdp
+	url = git@github.com:takuyakobayashi/Multiple-Dates-Picker-for-jQuery-UI.git
