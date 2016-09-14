@@ -7,19 +7,58 @@ require './trello_api'
 require './graph_data_creator'
 require './card_analyzer'
 
-$sprint_date = YAML.load_file(File.dirname(__FILE__) + "/data/sprint_date.yml")
-
 get '/sbc/:os/:ph/:sp' do |os,ph,sp|
-    init(ph,sp)
+    init()
+    init_graph(ph,sp)
     create_origin_data(os)
     create_graph_data()
     erb :index
 end
 
-get '/' do erb :index end
+get '/sbc/add' do erb :sprint_setting end
+
+post '/sbc/add' do
+    $sprint_date = YAML.load_file(File.dirname(__FILE__) + "/data/sprint_date.yml")
+    phase = $sprint_date["Phase " + params[:phase]]
+    selected_dates  = params[:dates].gsub!('/', '-').split(",")
+    if phase
+
+        sprint = phase["Sprint " + params[:sprint]]
+        if sprint
+            status 204
+        else
+            status 200
+            new_sprint_date = $sprint_date.dup
+            new_sprint_date["Phase " + params[:phase]]["Sprint " + params[:sprint]] = selected_dates
+            open("./data/sprint_date.yml", "w") {|f|
+                YAML.dump(new_sprint_date, f)
+            }
+        end
+
+    else
+        status 200
+        new_sprint_date = $sprint_date.dup
+        new_sprint_date["Phase " + params[:phase]] = {'Sprint ' + params[:sprint] => selected_dates}
+        open("./data/sprint_date.yml", "w") {|f|
+            YAML.dump(new_sprint_date, f)
+        }
+    end
+
+    body 'success'
+end
+
+get '/' do
+    init()
+    erb :index
+end
 get '*' do redirect to('/') end
 
-def init(ph,sp)
+def init()
+    # view data
+    @all_sprints_list = get_all_sprints_list()
+end
+
+def init_graph(ph,sp)
     @trello = Trello.new if @trello == nil
 
     @graph_data_ideal = Array.new
@@ -36,9 +75,6 @@ def init(ph,sp)
     @total_estimated_times = 0.0
     @week_day_consumed_times = Hash.new(0)
     @week_day_additional_times = Hash.new(0)
-
-    # view data
-    @all_sprints_list = get_all_sprints_list()
 end
 
 def create_origin_data(os)
@@ -132,6 +168,8 @@ end
 # for View data
 def get_all_sprints_list()
     result = Hash.new(0)
+    $sprint_date = YAML.load_file(File.dirname(__FILE__) + "/data/sprint_date.yml")
+
     $sprint_date.keys.each { |phase|
         sprints = Array.new
         $sprint_date[phase].each { |sprint|

@@ -21,16 +21,15 @@
 				<li class="dropdown">
 					<a href="#" class="dropdown-toggle" data-toggle="dropdown">All Sprint <b class="caret"></b></a>
 					<ul class="dropdown-menu">
-						<li><a href="#">Add Sprint</a></li>
+						<li role="presentation" class="dropdown-header">Sprint Setting</li>
+						<li role="presentation"><a role="menuitem" tabindex="-1" href="/sbc/add">Add Sprint</a></li>
 						<% if @all_sprints_list != nil %>
 							<% @all_sprints_list.keys.each do |phase| %>
-								<li class="divider"></li>
-								<p style="padding-left : 10px;"><%= phase %></p>
-
+								<li role="presentation" class="divider"></li>
+								<li role="presentation" class="dropdown-header"><%= phase %></li>
 								<% @all_sprints_list[phase].each do |sprint| %>
-									<li><a href="javascript:void(0);" onclick="OnClickSprint('<%= phase %>','<%= sprint %>');"><%= sprint %></a></li>
+									<li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:void(0);" onclick="onClickSprint('<%= phase %>','<%= sprint %>');"><%= sprint %></a></li>
 								<% end %>
-
 							<% end %>
 						<% end %>
 					</ul>
@@ -84,7 +83,7 @@
 <% end %>
 
 <script>
-	function OnClickSprint(phase,sprint) {
+	function onClickSprint(phase,sprint) {
 		var replacedPhase = window.location.pathname.replace("ph"+<%= @phase %>,"ph"+phase.substr(6,phase.length));
 		location.href = replacedPhase.replace("sp"+<%= @sprint %>,"sp"+sprint.substr(7,sprint.length));;
 	}
